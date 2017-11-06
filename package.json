@@ -18,7 +18,11 @@
     "url": "https://github.com/mlibrary/bayonet/issues"
   },
   "homepage": "https://github.com/mlibrary/bayonet#readme",
-  "dependencies": {},
+  "dependencies": {
+    "csv": "^2.0.0",
+    "executive": "^1.5.12",
+    "lumberyard": "^1.1.0"
+  },
   "devDependencies": {
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
