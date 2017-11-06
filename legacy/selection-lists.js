@@ -2,8 +2,11 @@
 // All Rights Reserved. Licensed according to the terms of the Revised
 // BSD License. See LICENSE.txt for details.
 
-let csv = require("csv");
-let fs = require("fs");
+/* eslint-disable no-unused-vars */
+const csv = require("csv");
+const fs = require("fs");
+const Lumberyard = require("lumberyard");
+const FileTreeInspector = Lumberyard.FileTreeInspector();
 
 let tsv = filePath => new Promise((resolve, reject) => {
   fs.readFile(filePath, (error, data) => {
@@ -135,7 +138,14 @@ institutions.set("cic", new Set([
   "GZI"
 ]));
 
-console.log(tsv);
+console.log(FileTreeInspector);
 
-module.exports = function(pwd) {
+module.exports = async function(pwd) {
+  let processLists = async function(root) {
+    let lists = await FileTreeInspector.getSizesUnder(pwd);
+
+    for (let listFilename of lists)
+      root.add(async function(list) {
+      });
+  };
 };
