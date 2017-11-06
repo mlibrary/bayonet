@@ -155,6 +155,8 @@ module.exports = async function(pwd) {
   let fullList = pwd + "/" + barcodeFilename;
 
   let processLists = async function(root) {
+    root.description = "mdp selection lists in " + pwd;
+
     // i'll assume that every file is a selection list
     let lists = await FileTreeInspector.getSizesUnder(pwd);
 
@@ -177,6 +179,8 @@ module.exports = async function(pwd) {
 
     for (let listFilename of lists.keys())
       root.add(async function(list) {
+        list.description = listFilename;
+
         // i expect every selection list to be a tab-separated file
         let data = await tsv(listFilename);
 
@@ -255,6 +259,8 @@ module.exports = async function(pwd) {
             // we'll look at every nonblank row
             list.add(async function(row) {
               row.cells = list[i];
+              row.barcode = row.cells[0];
+              row.description = row.barcode;
 
               // the last cell should be the status
               let last = row.cells[row.cells.length - 1];
@@ -271,9 +277,6 @@ module.exports = async function(pwd) {
               else
                 // the last cell isn't the status but we have a default
                 row.status = list.defaultStatus;
-
-              // the first cell is the barcode
-              row.barcode = row.cells[0];
 
               row.run = async function() {
               };
