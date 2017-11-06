@@ -6,6 +6,11 @@
 const csv = require("csv");
 const exec = require("executive");
 const fs = require("fs");
+const http = require("http");
+const querystring = require("querystring");
+const { URL } = require("url");
+const parseXML = require("xml2js").parseString;
+
 const Lumberyard = require("lumberyard");
 const FileTreeInspector = Lumberyard.FileTreeInspector();
 
@@ -31,6 +36,91 @@ let isBlankRow = row => {
       return false;
 
   return true;
+};
+
+let curl = (url, data) => new Promise(function(resolve, reject) {
+  let options = new URL(url + "?" + querystring.stringify(data || {}));
+  let result = "";
+
+  let request = http.request(options, response => {
+    response.setEncoding("utf8");
+
+    response.on("data", chunk => {
+      result += chunk;
+    });
+
+    response.on("end", () => {
+      resolve(result);
+    });
+  });
+
+  request.on("err", reject);
+  request.end();
+});
+
+let curlXML = (url, data) => new Promise(function(resolve, reject) {
+  curl(url, data).then(xml => {
+    parseXML(xml, (error, value) => {
+      if (error)
+        reject(error);
+
+      else
+        resolve(value);
+    });
+  }, reject);
+});
+
+let alephURL = async function(barcode) {
+  let internal = {
+    "id": barcode,
+    "type": "bc",
+    "schema": "marcxml"
+  };
+
+  let mdp = {
+    "id": "mdp." + barcode,
+    "schema": "marcxml"
+  };
+
+  let data = await curlXML(
+    "http://mirlyn-aleph.lib.umich.edu/cgi-bin/bc2meta", internal);
+
+  if (data.error)
+    data = await curlXML(
+      "http://mirlyn-aleph.lib.umich.edu/cgi-bin/bc2meta", mdp);
+
+  if (data.error)
+    throw Error(data.error);
+
+  return data;
+};
+
+let worldcatURL = async function(oclc) {
+  let data = await curl(
+    "http://www.worldcat.org/webservices/catalog/content/libraries/" + oclc, {
+      "wskey": process.env.MDP_REJECT_WC_KEY,
+      "format": "json",
+      "maximumLibraries": "50"
+    }
+  );
+
+  return JSON.parse(data);
+};
+
+let hathiOCLC = async function(oclc) {
+  let data = await curl(
+    "http://catalog.hathitrust.org/api/volumes/brief/oclc/"
+    + oclc + ".json");
+
+  return JSON.parse(data);
+};
+
+let hathiBIB = async function(bib) {
+  let data = await curl(
+    "http://catalog.hathitrust.org/api/volumes/brief/recordnumber/"
+    + bib + ".json");
+
+  return JSON.parse(data);
 };
 
 let institutions = new Map();
