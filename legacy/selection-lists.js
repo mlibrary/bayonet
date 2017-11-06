@@ -4,6 +4,7 @@
 
 /* eslint-disable no-unused-vars */
 const csv = require("csv");
+const exec = require("executive");
 const fs = require("fs");
 const Lumberyard = require("lumberyard");
 const FileTreeInspector = Lumberyard.FileTreeInspector();
@@ -150,7 +151,8 @@ console.log(FileTreeInspector);
 
 module.exports = async function(pwd) {
   // we'll need a full list of barcodes in the end
-  let fullList = pwd + Lumberyard.tempName("/barcodes-YYYYmmdd.txt");
+  let barcodeFilename = Lumberyard.tempName("barcodes-YYYYmmdd.txt");
+  let fullList = pwd + "/" + barcodeFilename;
 
   let processLists = async function(root) {
     // i'll assume that every file is a selection list
@@ -278,4 +280,21 @@ module.exports = async function(pwd) {
             });
       });
   };
+
+  let logfile = Lumberyard.tempName(
+    "/ram/selection-list-YYYYmmdd-HHMMSS.log");
+
+  try {
+    await Lumberyard.ProcessTree(logfile, processLists);
+  } catch (error) {
+    await exec("echo '" + logfile + "' >> /ram/error.log");
+    throw error;
+  }
+
+  let aleph = "/quod-prep/prep/d/dcu/DCU_Barcode_lists/2_Txt_sent_to_MDP-rejects/Aleph_Dropbox/" + barcodeFilename;
+
+  await exec("cat '" + fullList + "' >> '" + aleph + "'");
+  await exec("rm '" + fullList + "'");
+  await exec("mv -it '/quod-prep/prep/d/dcu/DCU_Barcode_lists/3_Finished_Import-Pick_lists' '" + pwd + "'/*");
+  await exec("rmdir '" + pwd + "'");
 };
