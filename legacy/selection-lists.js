@@ -24,8 +24,8 @@ let tsv = filePath => new Promise((resolve, reject) => {
   });
 });
 
-let isBlankLine = line => {
-  for (let cell of line)
+let isBlankRow = row => {
+  for (let cell of row)
     if (cell !== "")
       return false;
 
@@ -198,16 +198,16 @@ module.exports = async function(pwd) {
           list.defaultStatus = match[1].toUpperCase();
 
         for (let i = rowStart; i < data.length; i += 1)
-          if (!isBlankLine(list[i]))
+          if (!isBlankRow(list[i]))
             // we'll look at every nonblank row
-            list.add(async function(line) {
-              line.cells = list[i];
+            list.add(async function(row) {
+              row.cells = list[i];
 
               // the last cell should be the status
-              let last = line.cells[line.cells.length - 1];
+              let last = row.cells[row.cells.length - 1];
               if (/^[Dd][CcXxYyZz]$/.test(last))
                 // awesome, the last cell is the status
-                line.status = last.toUpperCase();
+                row.status = last.toUpperCase();
 
               else if (list.defaultStatus === null)
                 // the last cell isn't the status and we have no default
@@ -217,7 +217,7 @@ module.exports = async function(pwd) {
 
               else
                 // the last cell isn't the status but we have a default
-                line.status = list.defaultStatus;
+                row.status = list.defaultStatus;
             });
       });
   };
