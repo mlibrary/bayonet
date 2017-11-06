@@ -153,6 +153,11 @@ module.exports = async function(pwd) {
     // i'll assume that every file is a selection list
     let lists = await FileTreeInspector.getSizesUnder(pwd);
 
+    // we'll need a full list of barcodes in the end
+    let fullList = pwd + Lumberyard.tempName("/barcodes-YYYYmmdd.txt");
+    if (lists.has(fullList))
+      throw Error(fullList + " no don't call anything this, no please");
+
     for (let listFilename of lists.keys())
       root.add(async function(list) {
         // i expect every selection list to be a tab-separated file
