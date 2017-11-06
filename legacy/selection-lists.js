@@ -212,6 +212,39 @@ module.exports = async function(pwd) {
           // we found a default mirlyn status
           list.defaultStatus = match[1].toUpperCase();
 
+        list.outputRows = [];
+
+        list.runAfter = () => new Promise(function(resolve, reject) {
+          list.header.push("bib");
+          list.header.push("oclc");
+          list.header.push("callno");
+          list.header.push("author");
+          list.header.push("title");
+          list.header.push("desc");
+          list.header.push("pubdate");
+          list.header.push("");
+          list.header.push("unique");
+          list.header.push("cic");
+          list.header.push("noncic");
+          list.header.push("uofm");
+          list.header.push("whocares");
+          list.header.push("hathitrust_mdp");
+          list.header.push("hathitrust_other");
+          list.header.push("title_match_percent");
+
+          let text = list.header.join("\t") + "\r\n";
+          for (let row of list.outputRows)
+            text += row.join("\t") + "\r\n";
+
+          fs.writeFile(listFilename, text, error => {
+            if (error)
+              reject(error);
+
+            else
+              resolve();
+          });
+        });
+
         for (let i = rowStart; i < data.length; i += 1)
           if (!isBlankRow(list[i]))
             // we'll look at every nonblank row
