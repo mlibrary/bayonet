@@ -150,49 +150,68 @@ console.log(FileTreeInspector);
 
 module.exports = async function(pwd) {
   let processLists = async function(root) {
+    // i'll assume that every file is a selection list
     let lists = await FileTreeInspector.getSizesUnder(pwd);
 
-    for (let listFilename of lists)
+    for (let listFilename of lists.keys())
       root.add(async function(list) {
+        // i expect every selection list to be a tab-separated file
         let data = await tsv(listFilename);
 
         if (data.length === 0)
+          // i'm not ok with empty files
           throw Error(listFilename + " is empty");
 
+        // if there's no header row, then the first data row is the
+        // first row
         let rowStart = 0;
 
         if (/^[0-9]{14}$/.test(data[0][0])
             || /^[Bb][0-9]+$/.test(data[0][0])) {
+          // if the first cell is a valid barcode identifier, then there
+          // is no header, so we'll create a blank row to represent the
+          // header
           list.header = [];
           for (let i = 0; i < data[0].length; i += 1)
             list.header.push("");
         } else {
+          // if we have a header, then we'll skip it as a data row but
+          // also add it as our list header
           rowStart = 1;
           list.header = data[0];
         }
 
+        // look for DC|DX|DY|DZ in the filename
         let match = listFilename.match(/([Dd][CcXxYyZz])[^/]*$/);
 
         if (match === null)
+          // we didn't find anything ergo no default
           list.defaultStatus = null;
 
         else
+          // we found a default mirlyn status
           list.defaultStatus = match[1].toUpperCase();
 
         for (let i = rowStart; i < data.length; i += 1)
           if (!isBlankLine(list[i]))
+            // we'll look at every nonblank row
             list.add(async function(line) {
               line.cells = list[i];
 
+              // the last cell should be the status
               let last = line.cells[line.cells.length - 1];
               if (/^[Dd][CcXxYyZz]$/.test(last))
+                // awesome, the last cell is the status
                 line.status = last.toUpperCase();
 
               else if (list.defaultStatus === null)
-                throw Error(
-                  listFilename + " " + (i + 1).toString() + " invalid status");
+                // the last cell isn't the status and we have no default
+                throw Error(listFilename
+                            + " " + (i + 1).toString()
+                            + " invalid status");
 
               else
+                // the last cell isn't the status but we have a default
                 line.status = list.defaultStatus;
             });
       });
