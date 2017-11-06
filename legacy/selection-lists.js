@@ -215,6 +215,7 @@ module.exports = async function(pwd) {
         list.outputRows = [];
 
         list.runAfter = () => new Promise(function(resolve, reject) {
+          // fill in the header with the new columns
           list.header.push("bib");
           list.header.push("oclc");
           list.header.push("callno");
@@ -232,10 +233,12 @@ module.exports = async function(pwd) {
           list.header.push("hathitrust_other");
           list.header.push("title_match_percent");
 
+          // convert rows into tab-delimited text
           let text = list.header.join("\t") + "\r\n";
           for (let row of list.outputRows)
             text += row.join("\t") + "\r\n";
 
+          // overwrite the input file
           fs.writeFile(listFilename, text, error => {
             if (error)
               reject(error);
