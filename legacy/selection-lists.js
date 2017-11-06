@@ -149,14 +149,29 @@ institutions.set("cic", new Set([
 console.log(FileTreeInspector);
 
 module.exports = async function(pwd) {
+  // we'll need a full list of barcodes in the end
+  let fullList = pwd + Lumberyard.tempName("/barcodes-YYYYmmdd.txt");
+
   let processLists = async function(root) {
     // i'll assume that every file is a selection list
     let lists = await FileTreeInspector.getSizesUnder(pwd);
 
-    // we'll need a full list of barcodes in the end
-    let fullList = pwd + Lumberyard.tempName("/barcodes-YYYYmmdd.txt");
     if (lists.has(fullList))
       throw Error(fullList + " no don't call anything this, no please");
+
+    root.all = "";
+
+    root.runAfter = () => new Promise(function(resolve, reject) {
+      // on success, write to the full list file
+      if (root.all.length > 0)
+        fs.appendFile(fullList, root.all, error => {
+          if (error)
+            reject(error);
+
+          else
+            resolve();
+        });
+    });
 
     for (let listFilename of lists.keys())
       root.add(async function(list) {
@@ -218,6 +233,12 @@ module.exports = async function(pwd) {
               else
                 // the last cell isn't the status but we have a default
                 row.status = list.defaultStatus;
+
+              // the first cell is the barcode
+              row.barcode = row.cells[0];
+
+              row.run = async function() {
+              };
             });
       });
   };
