@@ -1,8 +1,8 @@
 {
-  "name": "node-quickstart",
+  "name": "bayonet",
   "version": "1.0.0",
-  "description": "PROJECT_DESCRIPTION",
-  "author": "YOUR_NAME",
+  "description": "image processing catchall",
+  "author": "Matt LaChance",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
@@ -11,13 +11,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mlibrary/node-quickstart.git"
+    "url": "git+https://github.com/mlibrary/bayonet.git"
   },
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/mlibrary/node-quickstart/issues"
+    "url": "https://github.com/mlibrary/bayonet/issues"
   },
-  "homepage": "https://github.com/mlibrary/node-quickstart#readme",
+  "homepage": "https://github.com/mlibrary/bayonet#readme",
   "dependencies": {},
   "devDependencies": {
     "chai": "^4.1.2",
