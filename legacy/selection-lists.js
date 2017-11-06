@@ -24,6 +24,14 @@ let tsv = filePath => new Promise((resolve, reject) => {
   });
 });
 
+let isBlankLine = line => {
+  for (let cell of line)
+    if (cell !== "")
+      return false;
+
+  return true;
+};
+
 let institutions = new Map();
 
 institutions.set("u-m", new Set([
@@ -146,6 +154,47 @@ module.exports = async function(pwd) {
 
     for (let listFilename of lists)
       root.add(async function(list) {
+        let data = await tsv(listFilename);
+
+        if (data.length === 0)
+          throw Error(listFilename + " is empty");
+
+        let rowStart = 0;
+
+        if (/^[0-9]{14}$/.test(data[0][0])
+            || /^[Bb][0-9]+$/.test(data[0][0])) {
+          list.header = [];
+          for (let i = 0; i < data[0].length; i += 1)
+            list.header.push("");
+        } else {
+          rowStart = 1;
+          list.header = data[0];
+        }
+
+        let match = listFilename.match(/([Dd][CcXxYyZz])[^/]*$/);
+
+        if (match === null)
+          list.defaultStatus = null;
+
+        else
+          list.defaultStatus = match[1].toUpperCase();
+
+        for (let i = rowStart; i < data.length; i += 1)
+          if (!isBlankLine(list[i]))
+            list.add(async function(line) {
+              line.cells = list[i];
+
+              let last = line.cells[line.cells.length - 1];
+              if (/^[Dd][CcXxYyZz]$/.test(last))
+                line.status = last.toUpperCase();
+
+              else if (list.defaultStatus === null)
+                throw Error(
+                  listFilename + " " + (i + 1).toString() + " invalid status");
+
+              else
+                line.status = list.defaultStatus;
+            });
       });
   };
 };
