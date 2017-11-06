@@ -345,6 +345,44 @@ const lookUpBarcode = async function(barcode) {
         hathiCount = null;
       }
     }
+
+    let row = [];
+    row.push(aleph.bib || "");
+    row.push(aleph.oclc || "");
+    row.push(aleph.callno || "");
+    row.push(aleph.author || "");
+    row.push(aleph.title || "");
+    row.push(aleph.desc || "");
+
+    if (aleph.years)
+      for (let year of aleph.years)
+        row.push(year.replace("^^^^", ""));
+
+    // unique
+    row.push("");
+
+    // cic
+    row.push("");
+
+    // noncic
+    row.push("");
+
+    // uofm
+    row.push("");
+
+    // whocares
+    row.push("");
+
+    // hathitrust_mdp
+    row.push("");
+
+    // hathitrust_other
+    row.push("");
+
+    // title_match_percent
+    row.push("");
+
+    return row;
   } catch (error) {
     return null;
   }
