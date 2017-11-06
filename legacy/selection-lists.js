@@ -284,7 +284,7 @@ institutions.set("cic", new Set([
 
 const lookUpBarcode = async function(barcode) {
   try {
-    let marc = getMarcData(barcode);
+    let marc = await getMarcData(barcode);
     let aleph = {};
 
     aleph.bib = marc.control.get("001");
@@ -325,6 +325,25 @@ const lookUpBarcode = async function(barcode) {
     if (marc.control.has("008")) {
       let yearString = marc.control.get("008");
       aleph.years = [yearString.slice(7, 11), yearString.slice(11, 15)];
+    }
+
+    if (aleph.oclc) {
+      let worldcat, hathiCount;
+
+      try {
+        let raw = await worldcatURL(aleph.oclc);
+        worldcat = {"title": raw.title, "libraries": []};
+        for (let library of raw.library)
+          worldcat.libraries.push(library.oclcSymbol);
+      } catch (error) {
+        worldcat = null;
+      }
+
+      try {
+        hathiCount = await hathiOCLC(aleph.oclc);
+      } catch (error) {
+        hathiCount = null;
+      }
     }
   } catch (error) {
     return null;
