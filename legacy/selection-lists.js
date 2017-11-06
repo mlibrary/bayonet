@@ -147,7 +147,9 @@ institutions.set("cic", new Set([
   "GZI"
 ]));
 
-console.log(FileTreeInspector);
+const lookUpBarcode = async function(barcode) {
+  return null;
+};
 
 module.exports = async function(pwd) {
   // we'll need a full list of barcodes in the end
@@ -279,6 +281,11 @@ module.exports = async function(pwd) {
                 row.status = list.defaultStatus;
 
               row.run = async function() {
+                let cols = await lookUpBarcode(row.barcode);
+                if (cols !== null) {
+                  list.outputRows.push(row.cells.concat(cols));
+                  root.all += row.barcode + "\t" + row.status + "\n";
+                }
               };
             });
       });
@@ -301,3 +308,5 @@ module.exports = async function(pwd) {
   await exec("mv -it '/quod-prep/prep/d/dcu/DCU_Barcode_lists/3_Finished_Import-Pick_lists' '" + pwd + "'/*");
   await exec("rmdir '" + pwd + "'");
 };
+
+console.log("selection-lists loads ok");
