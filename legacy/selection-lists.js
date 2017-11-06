@@ -123,6 +123,51 @@ let hathiBIB = async function(bib) {
   return JSON.parse(data);
 };
 
+let getMarcData = async function(barcode) {
+  let marc = await alephURL(barcode);
+  let result = {};
+
+  result.control = new Map();
+  for (let controlfield of marc.record.controlfield)
+    result.control.set(controlfield["$"].tag, controlfield["_"]);
+
+  let rawData = new Map();
+  for (let datafield of marc.record.datafield) {
+    let attrs = datafield["$"];
+    if (!rawData.has(attrs.tag))
+      rawData.set(attrs.tag, new Map());
+
+    let a = rawData.get(attrs.tag);
+    for (let subfield of datafield.subfield) {
+      if (!a.has(subfield["$"].code))
+        a.set(subfield["$"].code, []);
+
+      a.get(subfield["$"].code).push(subfield["_"]);
+    }
+  }
+
+  result.data = function(a, b) {
+    if (!rawData.has(a))
+      return [];
+
+    if (!rawData.get(a).has(b))
+      return [];
+
+    return rawData.get(a).get(b);
+  };
+
+  result.first = function(a, b) {
+    let all = result.data(a, b);
+    if (all.length === 0)
+      return undefined;
+
+    else
+      return all[0];
+  };
+
+  return result;
+};
+
 let institutions = new Map();
 
 institutions.set("u-m", new Set([
@@ -238,7 +283,52 @@ institutions.set("cic", new Set([
 ]));
 
 const lookUpBarcode = async function(barcode) {
-  return null;
+  try {
+    let marc = getMarcData(barcode);
+    let aleph = {};
+
+    aleph.bib = marc.control.get("001");
+    aleph.title = marc.first("245", "a");
+    aleph.callno = marc.first("MDP", "h");
+    aleph.description = marc.first("MDP", "z");
+
+    if (marc.first("100", "a"))
+      aleph.author = marc.first("100", "a");
+
+    else if (marc.first("110", "a") && marc.first("110", "b"))
+      aleph.author = marc.first("110", "a") + " " + marc.first("110", "b");
+
+    else if (marc.first("110", "a"))
+      aleph.author = marc.first("110", "a");
+
+    else if (marc.first("110", "b"))
+      aleph.author = marc.first("110", "b");
+
+    else if (marc.first("111", "a"))
+      aleph.author = marc.first("111", "a");
+
+    else if (marc.first("130", "a"))
+      aleph.author = marc.first("130", "a");
+
+    for (let x of marc.data("035", "a")) {
+      let match = x.match(/^\(OCoLC\).*?([0-9]+)$/);
+
+      if (match) {
+        aleph.oclc = match[1];
+        while (aleph.oclc.length < 9)
+          aleph.oclc = "0" + aleph.oclc;
+
+        break;
+      }
+    }
+
+    if (marc.control.has("008")) {
+      let yearString = marc.control.get("008");
+      aleph.years = [yearString.slice(7, 11), yearString.slice(11, 15)];
+    }
+  } catch (error) {
+    return null;
+  }
 };
 
 module.exports = async function(pwd) {
