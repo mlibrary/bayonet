@@ -38,4 +38,19 @@ describe("require('csv')", () => {
       });
     });
   });
+
+  describe("when dealing with CRLF files", () => {
+    it("ignores /\\r$/ and doesn't need a trailing newline", () => {
+      return parsePromise("a\tb\r\nc\td\r\ne\tf").then(output => {
+        expect(output).to.deep.equal([["a", "b"], ["c", "d"], ["e", "f"]]);
+      });
+    });
+
+    it("happily records blank lines", () => {
+      let blank = ["", "", ""];
+      return parsePromise("a\tb\tc\r\n\t\t\r\n\t\t").then(output => {
+        expect(output).to.deep.equal([["a", "b", "c"], blank, blank]);
+      });
+    });
+  });
 });
