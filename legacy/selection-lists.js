@@ -529,21 +529,21 @@ module.exports = function(logDir, alephDropbox, successDir) {
         });
     };
 
-    let logfile = Lumberyard.tempName(
-      "/ram/selection-list-YYYYmmdd-HHMMSS.log");
+    let logFile = Lumberyard.tempName(
+      logDir + "/selection-list-YYYYmmdd-HHMMSS.log");
 
     try {
-      await Lumberyard.ProcessTree(logfile, processLists);
+      await Lumberyard.ProcessTree(logFile, processLists);
     } catch (error) {
-      await exec("echo '" + logfile + "' >> /ram/error.log");
+      await exec("echo '" + logFile + "' >> '" + logDir + "/error.log'");
       throw error;
     }
 
-    let aleph = "/quod-prep/prep/d/dcu/DCU_Barcode_lists/2_Txt_sent_to_MDP-rejects/Aleph_Dropbox/" + barcodeFilename;
+    let aleph = alephDropbox + "/" + barcodeFilename;
 
     await exec("cat '" + fullList + "' >> '" + aleph + "'");
     await exec("rm '" + fullList + "'");
-    await exec("mv -it '/quod-prep/prep/d/dcu/DCU_Barcode_lists/3_Finished_Import-Pick_lists' '" + pwd + "'/*");
+    await exec("mv -it '" + successDir + "' '" + pwd + "'/*");
     await exec("rmdir '" + pwd + "'");
   };
 };
