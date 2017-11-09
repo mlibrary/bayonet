@@ -400,8 +400,8 @@ const lookUpBarcode = async function(barcode) {
 module.exports = function(logDir, alephDropbox, successDir) {
   return async function(pwd) {
     // we'll need a full list of barcodes in the end
-    let barcodeFilename = Lumberyard.tempName("barcodes-YYYYmmdd.txt");
-    let barcodeStatuses = new Map();
+    let barcodeFilename = alephDropbox
+      + Lumberyard.tempName("/barcodes-YYYYmmdd.txt");
 
     let processLists = async function(root) {
       root.description = "mdp selection lists in " + pwd;
@@ -413,8 +413,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
 
       root.runAfter = async function() {
         if (root.all.length > 0)
-          await appendFile(alephDropbox + "/" + barcodeFilename,
-                           root.all);
+          await appendFile(barcodeFilename, root.all);
       };
 
       for (let listFilename of lists.keys())
