@@ -168,6 +168,15 @@ let getMarcData = async function(barcode) {
   return result;
 };
 
+const appendFile = (file, data) => new Promise((resolve, reject) => {
+  fs.appendFile(file, data, error => {
+    if (error)
+      reject(error);
+    else
+      resolve();
+  });
+});
+
 let institutions = new Map();
 
 institutions.set("u-m", new Set([
@@ -392,7 +401,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
   return async function(pwd) {
     // we'll need a full list of barcodes in the end
     let barcodeFilename = Lumberyard.tempName("barcodes-YYYYmmdd.txt");
-    let fullList = pwd + "/" + barcodeFilename;
+    let barcodeStatuses = new Map();
 
     let processLists = async function(root) {
       root.description = "mdp selection lists in " + pwd;
@@ -400,22 +409,13 @@ module.exports = function(logDir, alephDropbox, successDir) {
       // i'll assume that every file is a selection list
       let lists = await FileTreeInspector.getSizesUnder(pwd);
 
-      if (lists.has(fullList))
-        throw Error(fullList + " no don't call anything this, no please");
-
       root.all = "";
 
-      root.runAfter = () => new Promise(function(resolve, reject) {
-        // on success, write to the full list file
+      root.runAfter = async function() {
         if (root.all.length > 0)
-          fs.appendFile(fullList, root.all, error => {
-            if (error)
-              reject(error);
-
-            else
-              resolve();
-          });
-      });
+          await appendFile(alephDropbox + "/" + barcodeFilename,
+                           root.all);
+      };
 
       for (let listFilename of lists.keys())
         root.add(async function(list) {
@@ -535,15 +535,11 @@ module.exports = function(logDir, alephDropbox, successDir) {
     try {
       await Lumberyard.ProcessTree(logFile, processLists);
     } catch (error) {
-      await exec("echo '" + logFile + "' >> '" + logDir + "/error.log'");
+      await appendFile(logDir + "/error.log", logFile + "\n");
       throw error;
     }
 
-    let aleph = alephDropbox + "/" + barcodeFilename;
-
-    await exec("cat '" + fullList + "' >> '" + aleph + "'");
-    await exec("rm '" + fullList + "'");
-    await exec("mv -it '" + successDir + "' '" + pwd + "'/*");
+    await exec("mv -i '" + pwd + "'/* '" + successDir + "'");
     await exec("rmdir '" + pwd + "'");
   };
 };
