@@ -4,6 +4,7 @@
 
 /* eslint-disable no-unused-vars */
 const csv = require("csv");
+const distance = require("fast-levenshtein").get;
 const exec = require("executive");
 const fs = require("fs");
 const http = require("http");
@@ -198,6 +199,11 @@ const appendFile = (file, data) => new Promise((resolve, reject) => {
   });
 });
 
+const normalizedDistance = (a, b) =>
+  distance(a, b) / Math.max(a.length, b.length);
+
+const soften = s => s.toLowerCase().replace(/[^0-9a-z ]/g, "");
+
 let institutions = new Map();
 
 institutions.set("u-m", new Set([
@@ -363,6 +369,8 @@ const lookUpBarcode = async function(barcode) {
     let dumb = 0;
     let hathiMDP = 0;
     let hathiOther = 0;
+    let titleDistance = 1;
+    let softTitle = soften(aleph.title || "");
 
     if (aleph.oclc) {
       let worldcat, hathiCount;
@@ -398,6 +406,16 @@ const lookUpBarcode = async function(barcode) {
       }
     }
 
+    if (aleph.bib)
+      try {
+        let raw = await hathiBIB(aleph.bib);
+        for (const record in raw.records)
+          for (const title of raw.records[record].titles)
+            titleDistance = Math.min(
+              titleDistance, normalizedDistance(softTitle,
+                                                soften(title)));
+      } catch (error) { }
+
     let row = [];
     row.push(aleph.bib || "");
     row.push(aleph.oclc || "");
@@ -417,29 +435,14 @@ const lookUpBarcode = async function(barcode) {
     else
       isUnique = numcic + numoth < 5;
 
-    // unique
     row.push(isUnique ? "unique" : "");
-
-    // cic
     row.push(numcic.toString());
-
-    // noncic
     row.push(numoth.toString());
-
-    // uofm
     row.push(numum.toString());
-
-    // whocares
     row.push(dumb.toString());
-
-    // hathitrust_mdp
     row.push(hathiMDP.toString());
-
-    // hathitrust_other
     row.push(hathiOther.toString());
-
-    // title_match_percent
-    row.push("");
+    row.push((Math.round(1000 * (1 - titleDistance)) / 10).toString());
 
     return row;
   } catch (error) {
