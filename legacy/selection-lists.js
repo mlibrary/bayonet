@@ -12,7 +12,7 @@ const querystring = require("querystring");
 const { URL } = require("url");
 const parseXML = require("xml2js").parseString;
 
-const Lumberyard = require("../../lumberyard");
+const Lumberyard = require("lumberyard");
 const FileTreeInspector = Lumberyard.FileTreeInspector();
 
 const TreeError = function(message) {
@@ -457,7 +457,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
       + Lumberyard.tempName("/barcodes-YYYYmmdd.txt");
 
     let processLists = async function(root) {
-      root.description = "mdp selection lists in " + pwd;
+      root.description = "processing selection lists in " + pwd;
 
       // i'll assume that every file is a selection list
       let lists = await FileTreeInspector.getSizesUnder(pwd);
