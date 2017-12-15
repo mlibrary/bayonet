@@ -21,6 +21,7 @@
   "dependencies": {
     "csv": "^2.0.0",
     "executive": "^1.5.12",
+    "fast-levenshtein": "^2.0.6",
     "lumberyard": "^1.2.3",
     "xml2js": "^0.4.19"
   },
