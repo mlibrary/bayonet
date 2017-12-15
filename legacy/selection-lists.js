@@ -11,8 +11,18 @@ const querystring = require("querystring");
 const { URL } = require("url");
 const parseXML = require("xml2js").parseString;
 
-const Lumberyard = require("lumberyard");
+const Lumberyard = require("../../lumberyard");
 const FileTreeInspector = Lumberyard.FileTreeInspector();
+
+const TreeError = function(message) {
+  let error = Error(message);
+
+  error.toJSON = function() {
+    return message;
+  };
+
+  return error;
+};
 
 let tsv = filePath => new Promise((resolve, reject) => {
   fs.readFile(filePath, (error, data) => {
@@ -52,9 +62,20 @@ let curl = (url, data) => new Promise(function(resolve, reject) {
     response.on("end", () => {
       resolve(result);
     });
+
+    response.on("err", error => {
+      console.log(error);
+      console.log("RESPONSE ERR");
+      reject(error);
+    });
   });
 
-  request.on("err", reject);
+  request.on("err", error => {
+    console.log(error);
+    console.log("REQUEST ERR");
+    reject(error);
+  });
+
   request.end();
 });
 
@@ -90,7 +111,7 @@ let alephURL = async function(barcode) {
       "http://mirlyn-aleph.lib.umich.edu/cgi-bin/bc2meta", mdp);
 
   if (data.error)
-    throw Error(data.error);
+    throw TreeError(data.error);
 
   return data;
 };
@@ -336,20 +357,42 @@ const lookUpBarcode = async function(barcode) {
       aleph.years = [yearString.slice(7, 11), yearString.slice(11, 15)];
     }
 
+    let numcic = 0;
+    let numoth = 0;
+    let numum = 0;
+    let dumb = 0;
+    let hathiMDP = 0;
+    let hathiOther = 0;
+
     if (aleph.oclc) {
       let worldcat, hathiCount;
 
       try {
         let raw = await worldcatURL(aleph.oclc);
         worldcat = {"title": raw.title, "libraries": []};
-        for (let library of raw.library)
+        for (const library of raw.library)
           worldcat.libraries.push(library.oclcSymbol);
+
+        for (const library of worldcat.libraries)
+          if (institutions.get("hathi").has(library))
+            dumb += 1;
+          else if (institutions.get("u-m").has(library))
+            numum += 1;
+          else if (institutions.get("cic").has(library))
+            numcic += 1;
+          else
+            numoth += 1;
       } catch (error) {
         worldcat = null;
       }
 
       try {
         hathiCount = await hathiOCLC(aleph.oclc);
+        for (const item of hathiCount.items)
+          if (item.htid.match(/^mdp\./))
+            hathiMDP += 1;
+          else
+            hathiOther += 1;
       } catch (error) {
         hathiCount = null;
       }
@@ -367,26 +410,33 @@ const lookUpBarcode = async function(barcode) {
       for (let year of aleph.years)
         row.push(year.replace("^^^^", ""));
 
+    let isUnique;
+
+    if (numcic > 0)
+      isUnique = numcic + numoth < 3;
+    else
+      isUnique = numcic + numoth < 5;
+
     // unique
-    row.push("");
+    row.push(isUnique ? "unique" : "");
 
     // cic
-    row.push("");
+    row.push(numcic.toString());
 
     // noncic
-    row.push("");
+    row.push(numoth.toString());
 
     // uofm
-    row.push("");
+    row.push(numum.toString());
 
     // whocares
-    row.push("");
+    row.push(dumb.toString());
 
     // hathitrust_mdp
-    row.push("");
+    row.push(hathiMDP.toString());
 
     // hathitrust_other
-    row.push("");
+    row.push(hathiOther.toString());
 
     // title_match_percent
     row.push("");
@@ -425,7 +475,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
 
           if (data.length === 0)
             // i'm not ok with empty files
-            throw Error(listFilename + " is empty");
+            throw TreeError(listFilename + " is empty");
 
           // if there's no header row, then the first data row is the
           // first row
@@ -494,10 +544,10 @@ module.exports = function(logDir, alephDropbox, successDir) {
           });
 
           for (let i = rowStart; i < data.length; i += 1)
-            if (!isBlankRow(list[i]))
+            if (!isBlankRow(data[i]))
               // we'll look at every nonblank row
               list.add(async function(row) {
-                row.cells = list[i];
+                row.cells = data[i];
                 row.barcode = row.cells[0];
                 row.description = row.barcode;
 
@@ -509,7 +559,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
 
                 else if (list.defaultStatus === null)
                   // the last cell isn't the status and we have no default
-                  throw Error(listFilename
+                  throw TreeError(listFilename
                     + " " + (i + 1).toString()
                     + " invalid status");
 
@@ -542,5 +592,3 @@ module.exports = function(logDir, alephDropbox, successDir) {
     await exec("rmdir '" + pwd + "'");
   };
 };
-
-console.log("selection-lists loads ok");
