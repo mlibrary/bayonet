@@ -16,7 +16,7 @@ const Lumberyard = require("lumberyard");
 const FileTreeInspector = Lumberyard.FileTreeInspector();
 
 const TreeError = function(message) {
-  let error = Error(message);
+  const error = Error(message);
 
   error.toJSON = function() {
     return message;
@@ -25,7 +25,7 @@ const TreeError = function(message) {
   return error;
 };
 
-let tsv = filePath => new Promise((resolve, reject) => {
+const tsv = filePath => new Promise((resolve, reject) => {
   fs.readFile(filePath, (error, data) => {
     if (error)
       reject(error);
@@ -41,19 +41,19 @@ let tsv = filePath => new Promise((resolve, reject) => {
   });
 });
 
-let isBlankRow = row => {
-  for (let cell of row)
+const isBlankRow = row => {
+  for (const cell of row)
     if (cell !== "")
       return false;
 
   return true;
 };
 
-let curl = (url, data) => new Promise(function(resolve, reject) {
-  let options = new URL(url + "?" + querystring.stringify(data || {}));
+const curl = (url, data) => new Promise(function(resolve, reject) {
+  const options = new URL(url + "?" + querystring.stringify(data || {}));
   let result = "";
 
-  let request = http.request(options, response => {
+  const request = http.request(options, response => {
     response.setEncoding("utf8");
 
     response.on("data", chunk => {
@@ -80,7 +80,7 @@ let curl = (url, data) => new Promise(function(resolve, reject) {
   request.end();
 });
 
-let curlXML = (url, data) => new Promise(function(resolve, reject) {
+const curlXML = (url, data) => new Promise(function(resolve, reject) {
   curl(url, data).then(xml => {
     parseXML(xml, (error, value) => {
       if (error)
@@ -92,14 +92,14 @@ let curlXML = (url, data) => new Promise(function(resolve, reject) {
   }, reject);
 });
 
-let alephURL = async function(barcode) {
-  let internal = {
+const alephURL = async function(barcode) {
+  const internal = {
     "id": barcode,
     "type": "bc",
     "schema": "marcxml"
   };
 
-  let mdp = {
+  const mdp = {
     "id": "mdp." + barcode,
     "schema": "marcxml"
   };
@@ -117,8 +117,8 @@ let alephURL = async function(barcode) {
   return data;
 };
 
-let worldcatURL = async function(oclc) {
-  let data = await curl(
+const worldcatURL = async function(oclc) {
+  const data = await curl(
     "http://www.worldcat.org/webservices/catalog/content/libraries/" + oclc, {
       "wskey": process.env.MDP_REJECT_WC_KEY,
       "format": "json",
@@ -129,38 +129,38 @@ let worldcatURL = async function(oclc) {
   return JSON.parse(data);
 };
 
-let hathiOCLC = async function(oclc) {
-  let data = await curl(
+const hathiOCLC = async function(oclc) {
+  const data = await curl(
     "http://catalog.hathitrust.org/api/volumes/brief/oclc/"
     + oclc + ".json");
 
   return JSON.parse(data);
 };
 
-let hathiBIB = async function(bib) {
-  let data = await curl(
+const hathiBIB = async function(bib) {
+  const data = await curl(
     "http://catalog.hathitrust.org/api/volumes/brief/recordnumber/"
     + bib + ".json");
 
   return JSON.parse(data);
 };
 
-let getMarcData = async function(barcode) {
-  let marc = await alephURL(barcode);
-  let result = {};
+const getMarcData = async function(barcode) {
+  const marc = await alephURL(barcode);
+  const result = {};
 
   result.control = new Map();
-  for (let controlfield of marc.record.controlfield)
+  for (const controlfield of marc.record.controlfield)
     result.control.set(controlfield["$"].tag, controlfield["_"]);
 
-  let rawData = new Map();
-  for (let datafield of marc.record.datafield) {
-    let attrs = datafield["$"];
+  const rawData = new Map();
+  for (const datafield of marc.record.datafield) {
+    const attrs = datafield["$"];
     if (!rawData.has(attrs.tag))
       rawData.set(attrs.tag, new Map());
 
-    let a = rawData.get(attrs.tag);
-    for (let subfield of datafield.subfield) {
+    const a = rawData.get(attrs.tag);
+    for (const subfield of datafield.subfield) {
       if (!a.has(subfield["$"].code))
         a.set(subfield["$"].code, []);
 
@@ -179,7 +179,7 @@ let getMarcData = async function(barcode) {
   };
 
   result.first = function(a, b) {
-    let all = result.data(a, b);
+    const all = result.data(a, b);
     if (all.length === 0)
       return undefined;
 
@@ -204,7 +204,7 @@ const normalizedDistance = (a, b) =>
 
 const soften = s => s.toLowerCase().replace(/[^0-9a-z ]/g, "");
 
-let institutions = new Map();
+const institutions = new Map();
 
 institutions.set("u-m", new Set([
   "EYM",
@@ -320,8 +320,8 @@ institutions.set("cic", new Set([
 
 const lookUpBarcode = async function(barcode) {
   try {
-    let marc = await getMarcData(barcode);
-    let aleph = {};
+    const marc = await getMarcData(barcode);
+    const aleph = {};
 
     aleph.bib = marc.control.get("001");
     aleph.title = marc.first("245", "a");
@@ -346,8 +346,8 @@ const lookUpBarcode = async function(barcode) {
     else if (marc.first("130", "a"))
       aleph.author = marc.first("130", "a");
 
-    for (let x of marc.data("035", "a")) {
-      let match = x.match(/^\(OCoLC\).*?([0-9]+)$/);
+    for (const x of marc.data("035", "a")) {
+      const match = x.match(/^\(OCoLC\).*?([0-9]+)$/);
 
       if (match) {
         aleph.oclc = match[1];
@@ -359,7 +359,7 @@ const lookUpBarcode = async function(barcode) {
     }
 
     if (marc.control.has("008")) {
-      let yearString = marc.control.get("008");
+      const yearString = marc.control.get("008");
       aleph.years = [yearString.slice(7, 11), yearString.slice(11, 15)];
     }
 
@@ -370,13 +370,13 @@ const lookUpBarcode = async function(barcode) {
     let hathiMDP = 0;
     let hathiOther = 0;
     let titleDistance = 1;
-    let softTitle = soften(aleph.title || "");
+    const softTitle = soften(aleph.title || "");
 
     if (aleph.oclc) {
       let worldcat, hathiCount;
 
       try {
-        let raw = await worldcatURL(aleph.oclc);
+        const raw = await worldcatURL(aleph.oclc);
         worldcat = {"title": raw.title, "libraries": []};
         for (const library of raw.library)
           worldcat.libraries.push(library.oclcSymbol);
@@ -408,7 +408,7 @@ const lookUpBarcode = async function(barcode) {
 
     if (aleph.bib)
       try {
-        let raw = await hathiBIB(aleph.bib);
+        const raw = await hathiBIB(aleph.bib);
         for (const record in raw.records)
           for (const title of raw.records[record].titles)
             titleDistance = Math.min(
@@ -416,7 +416,7 @@ const lookUpBarcode = async function(barcode) {
                                                 soften(title)));
       } catch (error) { }
 
-    let row = [];
+    const row = [];
     row.push(aleph.bib || "");
     row.push(aleph.oclc || "");
     row.push(aleph.callno || "");
@@ -425,7 +425,7 @@ const lookUpBarcode = async function(barcode) {
     row.push(aleph.desc || "");
 
     if (aleph.years)
-      for (let year of aleph.years)
+      for (const year of aleph.years)
         row.push(year.replace("^^^^", ""));
 
     let isUnique;
@@ -453,14 +453,14 @@ const lookUpBarcode = async function(barcode) {
 module.exports = function(logDir, alephDropbox, successDir) {
   return async function(pwd) {
     // we'll need a full list of barcodes in the end
-    let barcodeFilename = alephDropbox
+    const barcodeFilename = alephDropbox
       + Lumberyard.tempName("/barcodes-YYYYmmdd.txt");
 
-    let processLists = async function(root) {
+    const processLists = async function(root) {
       root.description = "processing selection lists in " + pwd;
 
       // i'll assume that every file is a selection list
-      let lists = await FileTreeInspector.getSizesUnder(pwd);
+      const lists = await FileTreeInspector.getSizesUnder(pwd);
 
       root.all = "";
 
@@ -469,12 +469,12 @@ module.exports = function(logDir, alephDropbox, successDir) {
           await appendFile(barcodeFilename, root.all);
       };
 
-      for (let listFilename of lists.keys())
+      for (const listFilename of lists.keys())
         root.add(async function(list) {
           list.description = listFilename;
 
           // i expect every selection list to be a tab-separated file
-          let data = await tsv(listFilename);
+          const data = await tsv(listFilename);
 
           if (data.length === 0)
             // i'm not ok with empty files
@@ -500,7 +500,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
           }
 
           // look for DC|DX|DY|DZ in the filename
-          let match = listFilename.match(/([Dd][CcXxYyZz])[^/]*$/);
+          const match = listFilename.match(/([Dd][CcXxYyZz])[^/]*$/);
 
           if (match === null)
             // we didn't find anything ergo no default
@@ -533,7 +533,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
 
             // convert rows into tab-delimited text
             let text = list.header.join("\t") + "\r\n";
-            for (let row of list.outputRows)
+            for (const row of list.outputRows)
               text += row.join("\t") + "\r\n";
 
             // overwrite the input file
@@ -555,7 +555,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
                 row.description = row.barcode;
 
                 // the last cell should be the status
-                let last = row.cells[row.cells.length - 1];
+                const last = row.cells[row.cells.length - 1];
                 if (/^[Dd][CcXxYyZz]$/.test(last))
                   // awesome, the last cell is the status
                   row.status = last.toUpperCase();
@@ -571,7 +571,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
                   row.status = list.defaultStatus;
 
                 row.run = async function() {
-                  let cols = await lookUpBarcode(row.barcode);
+                  const cols = await lookUpBarcode(row.barcode);
                   if (cols !== null) {
                     list.outputRows.push(row.cells.concat(cols));
                     root.all += row.barcode + "\t" + row.status + "\n";
@@ -581,7 +581,7 @@ module.exports = function(logDir, alephDropbox, successDir) {
         });
     };
 
-    let logFile = Lumberyard.tempName(
+    const logFile = Lumberyard.tempName(
       logDir + "/selection-list-YYYYmmdd-HHMMSS.log");
 
     try {

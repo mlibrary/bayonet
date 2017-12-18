@@ -8,7 +8,7 @@ const csv = require("csv");
 
 let data;
 
-let parsePromise = input => new Promise((resolve, reject) => {
+const parsePromise = input => new Promise((resolve, reject) => {
   csv.parse(input, {"delimiter": "\t"}, (error, output) => {
     if (error)
       reject(error);
@@ -47,7 +47,7 @@ describe("require('csv')", () => {
     });
 
     it("happily records blank lines", () => {
-      let blank = ["", "", ""];
+      const blank = ["", "", ""];
       return parsePromise("a\tb\tc\r\n\t\t\r\n\t\t").then(output => {
         expect(output).to.deep.equal([["a", "b", "c"], blank, blank]);
       });

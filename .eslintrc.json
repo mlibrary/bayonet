@@ -9,6 +9,7 @@
       "ObjectExpression": "first"
     }],
     "operator-linebreak": ["error", "before"],
+    "prefer-const": ["error", {"destructuring": "all"}],
     "quotes": ["error", "double", {"avoidEscape": true}],
     "semi": ["error", "always"],
     "space-before-function-paren": ["error", "never"]
