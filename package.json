@@ -22,19 +22,19 @@
     "csv": "^2.0.0",
     "executive": "^1.5.12",
     "fast-levenshtein": "^2.0.6",
-    "lumberyard": "^1.2.3",
+    "lumberyard": "^1.3.0",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
-    "eslint": "^4.13.1",
+    "eslint": "^4.18.1",
     "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "istanbul": "^1.1.0-alpha.1",
-    "mocha": "^4.0.1"
+    "mocha": "^4.1.0"
   }
 }
