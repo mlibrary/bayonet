@@ -1,0 +1,120 @@
+{
+  "hathi": ["HATHI"],
+
+  "umich": [
+    "EYM",
+    "BEU",
+    "E8W",
+    "EER",
+    "EKL",
+    "EMI",
+    "EUQ",
+    "EYD",
+    "HJ8",
+    "U2T",
+    "UMSPO",
+    "UMDON"
+  ],
+
+  "uchicago": [
+    "CGU",
+    "IAB",
+    "KEH"
+  ],
+
+  "illinois": [
+    "UIU",
+    "ILG",
+    "IAL",
+    "LSI",
+    "RHU",
+    "RQF",
+    "RQR"
+  ],
+
+  "iu": [
+    "AAAMC",
+    "FSIUL",
+    "I3U",
+    "IJZ",
+    "IUB",
+    "IUG",
+    "IUL",
+    "IULGB",
+    "IULSP",
+    "RQQ",
+    "XUL",
+    "XYA"
+  ],
+
+  "uiowa": [
+    "NUI",
+    "LUI",
+    "UIL",
+    "UKO"
+  ],
+
+  "msu": [
+    "EEM",
+    "EVK",
+    "MIMSU",
+    "MSUTA",
+    "MSUTP"
+  ],
+
+  "umn": [
+    "MNU",
+    "DIF",
+    "HOR",
+    "MCR",
+    "MLL",
+    "MND",
+    "MNH",
+    "MNU",
+    "MNUDS",
+    "MNX",
+    "MNY",
+    "NRI",
+    "UMM",
+    "UMMBL",
+    "XOR"
+  ],
+
+  "northwestern": [
+    "INU",
+    "FSINU",
+    "INL",
+    "INM",
+    "INUQR",
+    "JCR",
+    "TSINU",
+    "YO5"
+  ],
+
+  "osu": [
+    "OSU",
+    "OHL",
+    "OS0",
+    "OS1",
+    "OS6",
+    "ZH5",
+    "ZH6"
+  ],
+
+  "psu": [
+    "UPM",
+    "UPC"
+  ],
+
+  "purdue": [
+    "IPL",
+    "IPC",
+    "IPN",
+    "IUP",
+    "HV6"
+  ],
+
+  "wisc": [
+    "GZI"
+  ]
+}

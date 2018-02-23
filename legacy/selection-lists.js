@@ -15,6 +15,21 @@ const parseXML = require("xml2js").parseString;
 const Lumberyard = require("lumberyard");
 const FileTreeInspector = Lumberyard.FileTreeInspector();
 
+const cicInstitutionCodes = require("../lib/cic-institutions");
+const newInstitutions = new Map();
+newInstitutions.set("cic", new Set());
+
+for (const key in cicInstitutionCodes)
+  if (key === "hathi")
+    newInstitutions.set("hathi", new Set(cicInstitutionCodes[key]));
+
+  else if (key === "umich")
+    newInstitutions.set("u-m", new Set(cicInstitutionCodes[key]));
+
+  else
+    for (const code of cicInstitutionCodes[key])
+      newInstitutions.get("cic").add(code);
+
 const TreeError = function(message) {
   const error = Error(message);
 
