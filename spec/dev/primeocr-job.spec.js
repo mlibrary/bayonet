@@ -9,6 +9,16 @@ const PrimeJob = require("../../lib/primeocr-job");
 let job;
 
 describe("PrimeJob", () => {
+  it("fails when given an invalid header", () => {
+    expect(() => {
+      PrimeJob("Some Other Type of Job File\n"
+               + "Version 3.90\n"
+               + "1\n"
+               + "o:\\vol\\path\\00000001.tif\n"
+               + "o:\\templates\\whocares.ptm\n");
+    }).to.throw(Error);
+  });
+
   it("fails when given a version other than 3.90", () => {
     expect(() => {
       PrimeJob("Prime Recognition Job File\n"
