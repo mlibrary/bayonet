@@ -99,15 +99,21 @@ describe("PrimeJob with two images in different directories", () => {
                    + "Version 3.90\n"
                    + "2\n"
                    + "o:\\first\\path\\00000001.tif\n"
-                   + "o:\\templates\\whocares.ptm\n"
+                   + "o:\\templates\\shared.ptm\n"
                    + "o:\\second\\path\\00000001.tif\n"
-                   + "o:\\templates\\whocares.ptm\n");
+                   + "o:\\templates\\shared.ptm\n");
   });
 
   it("finds both volume paths", () => {
     expect(job.volumePaths()).to.have.members([
       "first/path",
       "second/path"
+    ]);
+  });
+
+  it("asks to view the only template file", () => {
+    expect(job.templatePaths()).to.have.members([
+      "templates/shared.ptm"
     ]);
   });
 });
