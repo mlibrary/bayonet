@@ -39,6 +39,16 @@ describe("PrimeJob", () => {
     }).to.throw(Error);
   });
 
+  it("fails when given an invalid template path", () => {
+    expect(() => {
+      PrimeJob("Prime Recognition Job File\n"
+               + "Version 3.90\n"
+               + "1\n"
+               + "o:\\vol\\path\\00000001.tif\n"
+               + "o:templates\\whocares.ptm\n");
+    }).to.throw(Error);
+  });
+
   it("can handle CRLF jobfiles", () => {
     expect(() => {
       PrimeJob("Prime Recognition Job File\r\n"
