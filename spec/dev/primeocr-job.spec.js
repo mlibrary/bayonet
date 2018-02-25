@@ -77,3 +77,22 @@ describe("PrimeJob with a new volume path", () => {
     expect(job.volumePaths()).to.deep.equal(["other/path"]);
   });
 });
+
+describe("PrimeJob with two images in different directories", () => {
+  beforeEach(() => {
+    job = PrimeJob("Prime Recognition Job File\n"
+                   + "Version 3.90\n"
+                   + "2\n"
+                   + "o:\\first\\path\\00000001.tif\n"
+                   + "o:\\templates\\whocares.ptm\n"
+                   + "o:\\second\\path\\00000001.tif\n"
+                   + "o:\\templates\\whocares.ptm\n");
+  });
+
+  it("finds both volume paths", () => {
+    expect(job.volumePaths()).to.deep.equal([
+      "first/path",
+      "second/path"
+    ]);
+  });
+});
