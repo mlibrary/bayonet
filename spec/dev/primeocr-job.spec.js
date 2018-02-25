@@ -68,6 +68,23 @@ describe("PrimeJob with only 00000001.tif", () => {
       "templates/only-template.ptm"
     ]);
   });
+
+  describe("when given a template file for txt output", () => {
+    beforeEach(() => {
+      job.addTemplates({
+        "templates/only-template.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "0,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n"
+      });
+    });
+
+    it("runs", () => {
+    });
+  });
 });
 
 describe("PrimeJob with two images in the same directory", () => {
