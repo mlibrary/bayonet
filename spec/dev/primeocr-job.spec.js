@@ -8,6 +8,18 @@ const PrimeJob = require("../../lib/primeocr-job");
 
 let job;
 
+describe("PrimeJob", () => {
+  it("fails when given a version other than 3.90", () => {
+    expect(() => {
+      PrimeJob("Prime Recognition Job File\n"
+               + "Version 4.00\n"
+               + "1\n"
+               + "o:\\vol\\path\\00000001.tif\n"
+               + "o:\\templates\\whocares.ptm\n");
+    }).to.throw(Error);
+  });
+});
+
 describe("PrimeJob with only 00000001.tif", () => {
   beforeEach(() => {
     job = PrimeJob("Prime Recognition Job File\n"
