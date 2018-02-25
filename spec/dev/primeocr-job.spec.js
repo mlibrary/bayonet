@@ -64,20 +64,6 @@ describe("PrimeJob with only 00000001.tif", () => {
   });
 });
 
-describe("PrimeJob with a new volume path", () => {
-  beforeEach(() => {
-    job = PrimeJob("Prime Recognition Job File\n"
-                   + "Version 3.90\n"
-                   + "1\n"
-                   + "o:\\other\\path\\00000001.tif\n"
-                   + "o:\\templates\\whocares.ptm\n");
-  });
-
-  it("knows to look in the right volume path", () => {
-    expect(job.volumePaths()).to.deep.equal(["other/path"]);
-  });
-});
-
 describe("PrimeJob with two images in different directories", () => {
   beforeEach(() => {
     job = PrimeJob("Prime Recognition Job File\n"
