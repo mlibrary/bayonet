@@ -64,6 +64,22 @@ describe("PrimeJob with only 00000001.tif", () => {
   });
 });
 
+describe("PrimeJob with two images in the same directory", () => {
+  beforeEach(() => {
+    job = PrimeJob("Prime Recognition Job File\n"
+                   + "Version 3.90\n"
+                   + "2\n"
+                   + "o:\\only\\path\\00000001.tif\n"
+                   + "o:\\templates\\whocares.ptm\n"
+                   + "o:\\only\\path\\00000002.tif\n"
+                   + "o:\\templates\\whocares.ptm\n");
+  });
+
+  it("finds the only volume path", () => {
+    expect(job.volumePaths()).to.have.members(["only/path"]);
+  });
+});
+
 describe("PrimeJob with two images in different directories", () => {
   beforeEach(() => {
     job = PrimeJob("Prime Recognition Job File\n"
@@ -80,21 +96,5 @@ describe("PrimeJob with two images in different directories", () => {
       "first/path",
       "second/path"
     ]);
-  });
-});
-
-describe("PrimeJob with two images in the same directory", () => {
-  beforeEach(() => {
-    job = PrimeJob("Prime Recognition Job File\n"
-                   + "Version 3.90\n"
-                   + "2\n"
-                   + "o:\\only\\path\\00000001.tif\n"
-                   + "o:\\templates\\whocares.ptm\n"
-                   + "o:\\only\\path\\00000002.tif\n"
-                   + "o:\\templates\\whocares.ptm\n");
-  });
-
-  it("finds the only volume path", () => {
-    expect(job.volumePaths()).to.have.members(["only/path"]);
   });
 });
