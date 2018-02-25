@@ -106,6 +106,19 @@ describe("PrimeJob with only 00000001.tif", () => {
       expect(job.outputExtension("templates/only-template.ptm"))
         .to.equal("txt");
     });
+
+    describe("when told about 00000001.txt and confid.txt", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "vol/path": [
+            "00000001.txt",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("runs", () => {});
+    });
   });
 
   describe("when given a template file for rtf output", () => {
