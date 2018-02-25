@@ -129,6 +129,34 @@ describe("PrimeJob with two images in the same directory", () => {
       "templates/second.ptm"
     ]);
   });
+
+  describe("when given differing template file outputs", () => {
+    beforeEach(() => {
+      job.addTemplates({
+        "templates/first.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "13,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n",
+        "templates/second.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "22,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n"
+      });
+    });
+
+    it("expects both output extensions", () => {
+      expect(job.outputExtension("templates/first.ptm"))
+        .to.equal("pdf");
+      expect(job.outputExtension("templates/second.ptm"))
+        .to.equal("xml");
+    });
+  });
 });
 
 describe("PrimeJob with two images in different directories", () => {
