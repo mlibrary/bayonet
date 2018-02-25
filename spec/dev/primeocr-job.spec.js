@@ -63,3 +63,17 @@ describe("PrimeJob with only 00000001.tif", () => {
     expect(job.volumePaths()).to.deep.equal(["vol/path"]);
   });
 });
+
+describe("PrimeJob with a new volume path", () => {
+  beforeEach(() => {
+    job = PrimeJob("Prime Recognition Job File\n"
+                   + "Version 3.90\n"
+                   + "1\n"
+                   + "o:\\other\\path\\00000001.tif\n"
+                   + "o:\\templates\\whocares.ptm\n");
+  });
+
+  it("knows to look in the right volume path", () => {
+    expect(job.volumePaths()).to.deep.equal(["other/path"]);
+  });
+});
