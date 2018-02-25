@@ -38,6 +38,16 @@ describe("PrimeJob", () => {
                + "o:\\templates\\whocares.ptm\r\n");
     }).not.to.throw();
   });
+
+  it("can handle CR jobfiles", () => {
+    expect(() => {
+      PrimeJob("Prime Recognition Job File\r"
+               + "Version 3.90\r"
+               + "1\r"
+               + "o:\\vol\\path\\00000001.tif\r"
+               + "o:\\templates\\whocares.ptm\r");
+    }).not.to.throw();
+  });
 });
 
 describe("PrimeJob with only 00000001.tif", () => {
