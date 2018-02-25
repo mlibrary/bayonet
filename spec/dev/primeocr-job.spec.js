@@ -82,7 +82,9 @@ describe("PrimeJob with only 00000001.tif", () => {
       });
     });
 
-    it("runs", () => {
+    it("expects an output extension of .txt", () => {
+      expect(job.outputExtension("templates/only-template.ptm"))
+        .to.equal("txt");
     });
   });
 });
