@@ -56,11 +56,17 @@ describe("PrimeJob with only 00000001.tif", () => {
                    + "Version 3.90\n"
                    + "1\n"
                    + "o:\\vol\\path\\00000001.tif\n"
-                   + "o:\\templates\\whocares.ptm\n");
+                   + "o:\\templates\\only-template.ptm\n");
   });
 
   it("knows to look in the right volume path", () => {
     expect(job.volumePaths()).to.have.members(["vol/path"]);
+  });
+
+  it("asks to view templates/only-template.ptm", () => {
+    expect(job.templatePaths()).to.have.members([
+      "templates/only-template.ptm"
+    ]);
   });
 });
 
