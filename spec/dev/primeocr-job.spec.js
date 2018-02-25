@@ -120,6 +120,10 @@ describe("PrimeJob with only 00000001.tif", () => {
       it("asks to delete no files", () => {
         expect(job.filesToDelete()).to.deep.equal([]);
       });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
     });
   });
 
