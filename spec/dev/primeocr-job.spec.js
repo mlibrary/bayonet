@@ -186,6 +186,27 @@ describe("PrimeJob with only 00000001.tif", () => {
         expect(job.isComplete()).to.equal(false);
       });
     });
+
+    describe("when told about 00000001.txt and 00000001.blk", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "vol/path": [
+            "00000001.txt",
+            "00000001.blk"
+          ]
+        });
+      });
+
+      it("asks to delete 00000001.blk", () => {
+        expect(job.filesToDelete()).to.have.members([
+          "vol/path/00000001.blk"
+        ]);
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
   });
 
   describe("when given a template file for rtf output", () => {
