@@ -21,6 +21,7 @@
 /* eslint-disable no-unused-expressions */
 const expect = require("chai").expect;
 const PrimeJob = require("../..").PrimeJob;
+const Buffer = require("safe-buffer").Buffer;
 
 let job;
 
@@ -82,6 +83,16 @@ describe("PrimeJob", () => {
                + "1\r"
                + "o:\\vol\\path\\00000001.tif\r"
                + "o:\\templates\\whocares.ptm\r");
+    }).not.to.throw();
+  });
+
+  it("can handle buffers instead of strings", () => {
+    expect(() => {
+      PrimeJob(Buffer.from("Prime Recognition Job File\r"
+               + "Version 3.90\r"
+               + "1\r"
+               + "o:\\vol\\path\\00000001.tif\r"
+               + "o:\\templates\\whocares.ptm\r", "binary"));
     }).not.to.throw();
   });
 });
