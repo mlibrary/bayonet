@@ -323,3 +323,86 @@ describe("PrimeJob with two images in different directories", () => {
     ]);
   });
 });
+
+describe("PrimeJob with four images in different directories", () => {
+  beforeEach(() => {
+    job = PrimeJob("Prime Recognition Job File\n"
+                   + "Version 3.90\n"
+                   + "2\n"
+                   + "o:\\first\\path\\00000001.tif\n"
+                   + "o:\\templates\\first.ptm\n"
+                   + "o:\\first\\path\\00000002.tif\n"
+                   + "o:\\templates\\second.ptm\n"
+                   + "o:\\second\\path\\00000003.tif\n"
+                   + "o:\\templates\\first.ptm\n"
+                   + "o:\\second\\path\\00000004.tif\n"
+                   + "o:\\templates\\second.ptm\n");
+  });
+
+  it("finds both volume paths", () => {
+    expect(job.volumePaths()).to.have.members([
+      "first/path",
+      "second/path"
+    ]);
+  });
+
+  it("asks to view both template files", () => {
+    expect(job.templatePaths()).to.have.members([
+      "templates/first.ptm",
+      "templates/second.ptm"
+    ]);
+  });
+
+  describe("when given differing template file outputs", () => {
+    beforeEach(() => {
+      job.addTemplates({
+        "templates/first.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "0,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n",
+        "templates/second.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "13,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n"
+      });
+    });
+
+    it("expects both output extensions", () => {
+      expect(job.outputExtension("templates/first.ptm"))
+        .to.equal("txt");
+      expect(job.outputExtension("templates/second.ptm"))
+        .to.equal("pdf");
+    });
+
+    describe("when told about only completed files", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "first/path": [
+            "00000001.txt",
+            "00000002.pdf",
+            "confid.txt"
+          ],
+          "second/path": [
+            "00000003.txt",
+            "00000004.pdf",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("asks to delete no files", () => {
+        expect(job.filesToDelete()).to.deep.equal([]);
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
+  });
+});
