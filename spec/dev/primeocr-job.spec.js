@@ -88,11 +88,21 @@ describe("PrimeJob", () => {
 
   it("can handle buffers instead of strings", () => {
     expect(() => {
-      PrimeJob(Buffer.from("Prime Recognition Job File\r"
-               + "Version 3.90\r"
-               + "1\r"
-               + "o:\\vol\\path\\00000001.tif\r"
-               + "o:\\templates\\whocares.ptm\r", "binary"));
+      PrimeJob(Buffer.from("Prime Recognition Job File\n"
+               + "Version 3.90\n"
+               + "1\n"
+               + "o:\\vol\\path\\00000001.tif\n"
+               + "o:\\templates\\whocares.ptm\n", "binary"));
+    }).not.to.throw();
+  });
+
+  it("allows 'Version=3.90' as well as 'Version 3.90'", () => {
+    expect(() => {
+      PrimeJob("Prime Recognition Job File\n"
+               + "Version=3.90\n"
+               + "1\n"
+               + "o:\\vol\\path\\00000001.tif\n"
+               + "o:\\templates\\whocares.ptm\n");
     }).not.to.throw();
   });
 });
