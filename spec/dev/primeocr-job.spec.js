@@ -207,6 +207,25 @@ describe("PrimeJob with only 00000001.tif", () => {
         expect(job.isComplete()).to.equal(true);
       });
     });
+
+    describe("when told about 00000001.txt and 00000002.blk", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "vol/path": [
+            "00000001.txt",
+            "00000002.blk"
+          ]
+        });
+      });
+
+      it("asks to delete no files", () => {
+        expect(job.filesToDelete()).to.deep.equal([]);
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
   });
 
   describe("when given a template file for rtf output", () => {
