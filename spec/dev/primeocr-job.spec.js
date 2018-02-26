@@ -636,3 +636,69 @@ describe("PrimeJob looking for *.tif", () => {
     });
   });
 });
+
+describe("PrimeJob looking for 00000003.tif then *.tif", () => {
+  beforeEach(() => {
+    job = PrimeJob("Prime Recognition Job File\n"
+                   + "Version 3.90\n"
+                   + "2\n"
+                   + "o:\\vol\\00000003.tif\n"
+                   + "o:\\templates\\pdf.ptm\n"
+                   + "o:\\vol\\*.tif\n"
+                   + "o:\\templates\\txt.ptm\n");
+  });
+
+  it("knows to look in the right volume path", () => {
+    expect(job.volumePaths()).to.have.members(["vol"]);
+  });
+
+  it("asks to view both templates", () => {
+    expect(job.templatePaths()).to.have.members([
+      "templates/pdf.ptm",
+      "templates/txt.ptm"
+    ]);
+  });
+
+  it("given the templates", () => {
+    beforeEach(() => {
+      job.addTemplates({
+        "templates/pdf.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "13,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n",
+        "templates/txt.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "0,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n"
+      });
+    });
+
+    describe("when told that four complete pages exist", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "vol": [
+            "00000001.txt",
+            "00000002.txt",
+            "00000003.pdf",
+            "00000004.txt",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("asks to delete no files", () => {
+        expect(job.filesToDelete()).to.be.empty;
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
+  });
+});
