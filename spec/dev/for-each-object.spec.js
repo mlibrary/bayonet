@@ -21,4 +21,9 @@ describe("forEachIn()", () => {
     forEachIn({}, logPairs);
     expect(pairs).to.deep.equal([]);
   });
+
+  it("does loops once through {a: b}", () => {
+    forEachIn({"a": "b"}, logPairs);
+    expect(pairs).to.deep.equal([["b", "a"]]);
+  });
 });
