@@ -405,6 +405,34 @@ describe("PrimeJob with four images in different directories", () => {
       });
     });
 
+    describe("when told that 00000001.tif still exists", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "first/path": [
+            "00000001.tif",
+            "00000001.txt",
+            "00000002.pdf",
+            "confid.txt"
+          ],
+          "second/path": [
+            "00000003.txt",
+            "00000004.pdf",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("asks to delete 00000001.tif", () => {
+        expect(job.filesToDelete()).to.have.members([
+          "first/path/00000001.tif"
+        ]);
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
+
     describe("when told that only 00000001.tif is incomplete", () => {
       beforeEach(() => {
         job.addFiles({
