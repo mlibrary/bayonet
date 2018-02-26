@@ -17,13 +17,8 @@ describe("forEachIn()", () => {
     pairs = [];
   });
 
-  describe("when passed an empty object", () => {
-    beforeEach(() => {
-      forEachIn({}, logPairs);
-    });
-
-    it("does nothing", () => {
-      expect(pairs).to.deep.equal([]);
-    });
+  it("does nothing when passed an empty object", () => {
+    forEachIn({}, logPairs);
+    expect(pairs).to.deep.equal([]);
   });
 });
