@@ -36,4 +36,19 @@ describe("forEachIn()", () => {
     forEachIn({"e": "f", "g": "h"}, logPairs);
     expect(pairs).to.deep.have.members([["f", "e"], ["h", "g"]]);
   });
+
+  describe("when an object has a prototype", () => {
+    let prototypedObject;
+    let loopObject;
+
+    beforeEach(() => {
+      prototypedObject = {"somethingWeird": "unexpected"};
+      loopObject = Object.create(prototypedObject);
+    });
+
+    it("ignores the prototype", () => {
+      forEachIn(loopObject, logPairs);
+      expect(pairs).to.deep.equal([]);
+    });
+  });
 });
