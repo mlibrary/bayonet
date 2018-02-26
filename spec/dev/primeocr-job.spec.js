@@ -569,5 +569,34 @@ describe("PrimeJob looking for *.tif", () => {
         expect(job.isComplete()).to.equal(false);
       });
     });
+
+    describe("when given complete files for 5 images", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "vol": [
+            "00000001.txt",
+            "00000002.txt",
+            "00000003.tif",
+            "00000003.txt",
+            "00000004.blk",
+            "00000004.txt",
+            "00000005.txt",
+            "00000006.blk",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("asks to delete unneeded files", () => {
+        expect(job.filesToDelete()).to.have.members([
+          "vol/00000003.tif",
+          "vol/00000004.blk"
+        ]);
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
   });
 });
