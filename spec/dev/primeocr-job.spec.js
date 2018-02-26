@@ -3,6 +3,7 @@
 // BSD License. See LICENSE.txt for details.
 
 /* eslint-env mocha */
+/* eslint-disable no-unused-expressions */
 const expect = require("chai").expect;
 const PrimeJob = require("../../lib/primeocr-job");
 
@@ -536,5 +537,37 @@ describe("PrimeJob looking for *.tif", () => {
 
   it("asks to view templates/txt.ptm", () => {
     expect(job.templatePaths()).to.have.members(["templates/txt.ptm"]);
+  });
+
+  describe("given a template file for txt output", () => {
+    beforeEach(() => {
+      job.addTemplates({
+        "templates/txt.ptm":
+          "Prime Recognition Document Template\n\n"
+          + "Version 3.90\n"
+          + "0,1\n"
+          + "1,0,0,0,10,1,12,0,0,0\n"
+          + "1\n"
+          + "0,0,1,999999,100,200,500,5000\n"
+      });
+    });
+
+    describe("when told that 00000001.tif exists", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "vol": [
+            "00000001.tif"
+          ]
+        });
+      });
+
+      it("asks to delete no files", () => {
+        expect(job.filesToDelete()).to.be.empty;
+      });
+
+      it("knows it's incomplete", () => {
+        expect(job.isComplete()).to.equal(false);
+      });
+    });
   });
 });
