@@ -404,5 +404,91 @@ describe("PrimeJob with four images in different directories", () => {
         expect(job.isComplete()).to.equal(true);
       });
     });
+
+    describe("when told that only 00000001.tif is incomplete", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "first/path": [
+            "00000001.tif",
+            "00000002.pdf",
+            "confid.txt"
+          ],
+          "second/path": [
+            "00000003.txt",
+            "00000004.pdf",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("asks to delete no files", () => {
+        expect(job.filesToDelete()).to.deep.equal([]);
+      });
+
+      it("knows it's incomplete", () => {
+        expect(job.isComplete()).to.equal(false);
+      });
+    });
+
+    describe("when told that only 00000002.tif is incomplete", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "first/path": [
+            "00000001.txt",
+            "00000002.tif",
+            "confid.txt"
+          ],
+          "second/path": [
+            "00000003.txt",
+            "00000004.pdf",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("asks to delete no files", () => {
+        expect(job.filesToDelete()).to.deep.equal([]);
+      });
+
+      it("knows it's incomplete", () => {
+        expect(job.isComplete()).to.equal(false);
+      });
+    });
+
+    describe("when told it's complete but with blk files", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "first/path": [
+            "00000001.txt",
+            "00000001.blk",
+            "00000002.pdf",
+            "00000002.blk",
+            "00000003.blk",
+            "confid.txt"
+          ],
+          "second/path": [
+            "00000003.txt",
+            "00000003.blk",
+            "00000004.pdf",
+            "00000004.blk",
+            "00000005.blk",
+            "confid.txt"
+          ]
+        });
+      });
+
+      it("asks to delete relevant blk files", () => {
+        expect(job.filesToDelete()).to.have.members([
+          "first/path/00000001.blk",
+          "first/path/00000002.blk",
+          "second/path/00000003.blk",
+          "second/path/00000004.blk"
+        ]);
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
   });
 });
