@@ -328,7 +328,7 @@ describe("PrimeJob with four images in different directories", () => {
   beforeEach(() => {
     job = PrimeJob("Prime Recognition Job File\n"
                    + "Version 3.90\n"
-                   + "2\n"
+                   + "4\n"
                    + "o:\\first\\path\\00000001.tif\n"
                    + "o:\\templates\\first.ptm\n"
                    + "o:\\first\\path\\00000002.tif\n"
@@ -518,5 +518,23 @@ describe("PrimeJob with four images in different directories", () => {
         expect(job.isComplete()).to.equal(true);
       });
     });
+  });
+});
+
+describe("PrimeJob looking for *.tif", () => {
+  beforeEach(() => {
+    job = PrimeJob("Prime Recognition Job File\n"
+                   + "Version 3.90\n"
+                   + "1\n"
+                   + "o:\\vol\\*.tif\n"
+                   + "o:\\templates\\txt.ptm\n");
+  });
+
+  it("knows to look in the right volume path", () => {
+    expect(job.volumePaths()).to.have.members(["vol"]);
+  });
+
+  it("asks to view templates/txt.ptm", () => {
+    expect(job.templatePaths()).to.have.members(["templates/txt.ptm"]);
   });
 });
