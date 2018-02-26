@@ -31,4 +31,9 @@ describe("forEachIn()", () => {
     forEachIn({"c": "d"}, logPairs);
     expect(pairs).to.deep.have.members([["d", "c"]]);
   });
+
+  it("does loops both times through {e: f, g: h}", () => {
+    forEachIn({"e": "f", "g": "h"}, logPairs);
+    expect(pairs).to.deep.have.members([["f", "e"], ["h", "g"]]);
+  });
 });
