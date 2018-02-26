@@ -2,6 +2,21 @@
 // All Rights Reserved. Licensed according to the terms of the Revised
 // BSD License. See LICENSE.txt for details.
 
+// Note: this doesn't handle any job syntaxes more advanced than
+// asterisk wildcards. That is, it doesn't handle the following
+// characters in an image path:
+// -   ?
+// -   [...]
+// -   +
+//
+// No wildcards are supported in the template path, and even the
+// asterisk isn't supported until we've entered the volume path. For
+// example, o:\path\to\*\image.tif won't match o:\path\to\any\image.tif.
+//
+// I don't foresee any need for me to implement any of that, so I put
+// the note here. If you need any of that, make an issue, or, better
+// yet, a pull request.
+
 /* eslint-env mocha */
 /* eslint-disable no-unused-expressions */
 const expect = require("chai").expect;
