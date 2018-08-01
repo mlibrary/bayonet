@@ -163,6 +163,28 @@ describe("PrimeJob with only 00000001.tif", () => {
       });
     });
 
+    describe("when told about 00000001.txt, confid.txt, and Thumbs.db", () => {
+      beforeEach(() => {
+        job.addFiles({
+          "vol/path": [
+            "00000001.txt",
+            "confid.txt",
+            "Thumbs.db"
+          ]
+        });
+      });
+
+      it("asks to delete Thumbs.db", () => {
+        expect(job.filesToDelete()).to.have.members([
+          "vol/path/Thumbs.db"
+        ]);
+      });
+
+      it("knows it's complete", () => {
+        expect(job.isComplete()).to.equal(true);
+      });
+    });
+
     describe("when told about 00000001.tif and confid.txt", () => {
       beforeEach(() => {
         job.addFiles({
